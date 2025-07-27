@@ -22,6 +22,7 @@ interface AuthState {
   signIn: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   setAnonymous: (sessionId: string) => void;
   clearError: () => void;
@@ -470,6 +471,40 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error('Sign up failed:', error);
           set({ isLoading: false, error: error instanceof Error ? error.message : '회원가입에 실패했습니다.' });
+        }
+      },
+      resetPassword: async (email: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth/reset-password`,
+          });
+
+          if (error) {
+            console.error('Reset password error:', error);
+            
+            // 더 자세한 비밀번호 재설정 에러 메시지 제공
+            let errorMessage = '비밀번호 재설정 이메일 전송에 실패했습니다.';
+            if (error.message.includes('User not found')) {
+              errorMessage = '등록되지 않은 이메일입니다. 회원가입을 먼저 해주세요.';
+            } else if (error.message.includes('Invalid email')) {
+              errorMessage = '올바른 이메일 형식을 입력해주세요.';
+            } else if (error.message.includes('Email rate limit exceeded')) {
+              errorMessage = '이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+            } else if (error.message.includes('Unable to validate email')) {
+              errorMessage = '이메일 인증에 실패했습니다. 이메일을 다시 확인해주세요.';
+            }
+            
+            set({ isLoading: false, error: errorMessage });
+            return;
+          }
+
+          // 성공 시 에러 메시지 초기화
+          set({ isLoading: false, error: null });
+        } catch (error) {
+          console.error('Reset password failed:', error);
+          set({ isLoading: false, error: error instanceof Error ? error.message : '비밀번호 재설정에 실패했습니다.' });
         }
       },
       signOut: async () => {
