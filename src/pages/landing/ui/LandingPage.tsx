@@ -17,7 +17,7 @@ export function LandingPage() {
             Google로 시작하기
           </button>
           <button className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors" onClick={() => {
-            router.push('/board');
+            router.push('/dashboard');
           }}>
             보드 둘러보기
           </button>

@@ -1,7 +1,33 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 export function BoardPage() {
+  const router = useRouter();
+  
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="flex h-screen">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <button 
+            onClick={() => router.push('/')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            ← 홈으로 돌아가기
+          </button>
+          <h1 className="text-xl font-semibold text-gray-900">🎨 Vibe Board</h1>
+          <div className="flex space-x-2">
+            <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+              저장
+            </button>
+            <button className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+              공유
+            </button>
+          </div>
+        </div>
+      </header>
+      
+      <div className="flex h-[calc(100vh-60px)]">
         {/* 사이드바 */}
         <div className="w-64 bg-white shadow-sm border-r border-gray-200">
           <div className="p-4">
