@@ -3,13 +3,13 @@
 // export { BoardSettings } from './ui/BoardSettings';
 
 // Model
-export type { BoardModel, BoardActions } from './model';
+export * from './model';
 
 // API
 // export { boardApi } from './api/boardApi';
 
 // Lib
-// export { useBoard } from './lib/useBoard';
+export * from './lib/useBoards';
 
 // Config
 export { BOARD_CONFIG } from './config'; 

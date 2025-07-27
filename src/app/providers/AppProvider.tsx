@@ -1,15 +1,18 @@
 'use client';
 
-import { ReactNode } from 'react';
+  import { ThemeProvider } from "./ThemeProvider";
+  import { AuthProvider } from "@/shared/lib/providers";
 
 interface AppProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function AppProvider({ children }: AppProviderProps) {
   return (
-    <div className="app-provider">
-      {children}
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ThemeProvider>
   );
 } 

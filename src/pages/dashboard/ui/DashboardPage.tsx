@@ -1,40 +1,144 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useBoards } from "@/entities/board";
+import { Navigation } from "@/shared/ui";
+import { ProtectedRoute } from "@/shared/lib/components";
+import {
+  StatsSection,
+  BoardsGrid,
+  LoadingState,
+  ErrorState,
+  SortOptions,
+  DashboardHeader
+} from "@/features/dashboard";
+
 export function DashboardPage() {
+  const router = useRouter();
+  const {
+    pinnedBoards,
+    regularBoards,
+    isLoading,
+    error,
+    sortBy,
+    setSortBy,
+    createBoard,
+    toggleStar,
+    togglePin,
+    deleteBoard
+  } = useBoards();
+
+  const handleCreateBoard = async () => {
+    try {
+      const newBoard = await createBoard({
+        name: '새 보드',
+        description: '새로운 아이디어를 위한 보드',
+      });
+      router.push(`/board/${newBoard.id}`);
+    } catch (err) {
+      console.error('보드 생성 실패:', err);
+      // Show error message to user
+      alert(err instanceof Error ? err.message : '보드 생성에 실패했습니다.');
+    }
+  };
+
+  const handleOpenBoard = (boardId: string) => {
+    router.push(`/board/${boardId}`);
+  };
+
+  const handleStarBoard = async (boardId: string) => {
+    try {
+      await toggleStar(boardId);
+    } catch (err) {
+      console.error('보드 즐겨찾기 실패:', err);
+      alert(err instanceof Error ? err.message : '즐겨찾기 설정에 실패했습니다.');
+    }
+  };
+
+  const handlePinBoard = async (boardId: string) => {
+    try {
+      await togglePin(boardId);
+    } catch (err) {
+      console.error('보드 고정 실패:', err);
+      alert(err instanceof Error ? err.message : '고정 설정에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteBoard = async (boardId: string) => {
+    try {
+      await deleteBoard(boardId);
+    } catch (err) {
+      console.error('보드 삭제 실패:', err);
+      alert(err instanceof Error ? err.message : '보드 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
+  if (isLoading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50">
+          <Navigation
+            variant="dashboard"
+            boardCount={0}
+            onCreateBoard={handleCreateBoard}
+          />
+          <LoadingState />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50">
+          <Navigation
+            variant="dashboard"
+            boardCount={0}
+            onCreateBoard={handleCreateBoard}
+          />
+          <ErrorState error={error} onRetry={handleRetry} />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            📊 내 대시보드
-          </h1>
-          <p className="text-gray-600 mb-8">
-            내가 만든 보드들을 관리하고 새로운 보드를 만들어보세요.
-          </p>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation
+          variant="dashboard"
+          boardCount={pinnedBoards.length + regularBoards.length}
+          onCreateBoard={handleCreateBoard}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <DashboardHeader onCreateBoard={handleCreateBoard} />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer">
-              <div className="text-4xl mb-4">➕</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">새 보드 만들기</h3>
-              <p className="text-gray-600">새로운 아이디어를 위한 보드를 생성하세요</p>
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <SortOptions
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+              />
             </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">내 첫 프로젝트</h3>
-              <p className="text-blue-700 text-sm mb-4">2024.01.15 생성</p>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
-                보드 열기
-              </button>
-            </div>
-            
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">팀 브레인스토밍</h3>
-              <p className="text-green-700 text-sm mb-4">2024.01.10 생성</p>
-              <button className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-colors">
-                보드 열기
-              </button>
-            </div>
+            <StatsSection boards={[...pinnedBoards, ...regularBoards]} />
           </div>
+
+          <BoardsGrid
+            pinnedBoards={pinnedBoards}
+            regularBoards={regularBoards}
+            onCreateBoard={handleCreateBoard}
+            onOpenBoard={handleOpenBoard}
+            onStarBoard={handleStarBoard}
+            onPinBoard={handlePinBoard}
+            onDeleteBoard={handleDeleteBoard}
+          />
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 } 

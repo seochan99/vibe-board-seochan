@@ -1,6 +1,14 @@
 // Supabase
-export * from './supabase/client';
-export * from './supabase/server';
+export * from './supabase';
+
+// Stores
+export * from './stores';
+
+// Providers
+export * from './providers';
+
+// Components
+export * from './components';
 
 // Utils
 // export * from './utils/validation';

@@ -1,7 +1,4 @@
-// UI Components
-// export { AuthProvider } from './ui/AuthProvider';
-// export { LoginButton } from './ui/LoginButton';
-// export { UserProfile } from './ui/UserProfile';
+export * from './ui';
 
 // Model
 export type { AuthModel, AuthActions } from './model';
