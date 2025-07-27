@@ -1,0 +1,278 @@
+# Vibe Board - Cursor Rules
+
+## 프로젝트 개요
+Vibe Board는 Feature-Sliced Design (FSD) 아키텍처를 사용하는 Next.js 15 기반의 실시간 협업 화이트보드 애플리케이션입니다.
+
+## 기술 스택
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS v4
+- **Backend**: Supabase (Auth, PostgreSQL DB, Realtime, Storage)
+- **UI/UX**: React Draggable, Custom Components
+- **Architecture**: Feature-Sliced Design (FSD)
+- **State Management**: Zustand (with persist middleware)
+- **Authentication**: Google OAuth, Email/Password, Password Reset
+
+## 폴더 구조 규칙
+
+### FSD 레이어 구조
+```
+src/
+├── app/           # App Layer (앱 레벨 프로바이더)
+├── pages/         # Pages Layer (페이지 컴포넌트)
+├── widgets/       # Widgets Layer (복합 UI 블록)
+├── features/      # Features Layer (비즈니스 기능)
+├── entities/      # Entities Layer (도메인 엔티티)
+└── shared/        # Shared Layer (공유 리소스)
+```
+
+### 각 레이어별 구조
+각 레이어의 모듈은 다음 구조를 따릅니다:
+```
+module/
+├── ui/            # UI 컴포넌트
+│   ├── ComponentName/
+│   │   ├── ComponentName.tsx
+│   │   └── index.ts
+│   └── index.ts
+├── model/         # 타입 정의 및 인터페이스
+├── api/           # API 관련 로직
+├── lib/           # 비즈니스 로직
+├── config/        # 설정 및 상수
+└── index.ts       # 공개 API
+```
+
+### 컴포넌트 폴더 구조 규칙
+- **각 컴포넌트는 독립적인 폴더를 가져야 함**
+- **폴더명은 PascalCase 사용** (예: `BoardHeader/`, `Button/`)
+- **각 폴더에는 컴포넌트 파일과 index.ts가 있어야 함**
+- **index.ts는 해당 컴포넌트만 export**
+- **여러 컴포넌트를 한번에 import하지 말고 개별적으로 import**
+
+#### 올바른 구조 예시:
+```
+ui/
+├── Button/
+│   ├── Button.tsx
+│   └── index.ts
+├── Card/
+│   ├── Card.tsx
+│   └── index.ts
+└── index.ts
+```
+
+#### 잘못된 구조 예시:
+```
+ui/
+├── Button.tsx
+├── Card.tsx
+└── index.ts
+```
+
+### Shared Lib 폴더 구조 규칙
+- **각 파일은 독립적인 폴더를 가져야 함**
+- **폴더명은 파일명과 동일하게 사용** (예: `AuthStore/`, `SupabaseClient/`)
+- **각 폴더에는 파일과 index.ts가 있어야 함**
+- **index.ts는 해당 파일만 export**
+
+#### 올바른 구조 예시:
+```
+shared/lib/
+├── stores/
+│   ├── authStore/
+│   │   ├── AuthStore.ts
+│   │   └── index.ts
+│   └── index.ts
+├── supabase/
+│   ├── client/
+│   │   ├── SupabaseClient.ts
+│   │   └── index.ts
+│   ├── server/
+│   │   ├── SupabaseServer.ts
+│   │   └── index.ts
+│   └── index.ts
+└── index.ts
+```
+
+## 코딩 규칙
+
+### 1. 파일 명명 규칙
+- **컴포넌트**: PascalCase (예: `BoardCanvas.tsx`)
+- **훅**: camelCase + use 접두사 (예: `useBoard.ts`)
+- **타입**: PascalCase + Model/Actions 접미사 (예: `BoardModel.ts`)
+- **API**: camelCase + Api 접미사 (예: `boardApi.ts`)
+- **설정**: UPPER_SNAKE_CASE (예: `BOARD_CONFIG.ts`)
+
+### 2. TypeScript 규칙
+- 모든 파일은 TypeScript 사용
+- 엄격한 타입 체크 활성화
+- 인터페이스는 `Model`과 `Actions`로 분리
+- API 응답 타입은 명시적으로 정의
+
+### 3. 컴포넌트 규칙
+- 모든 컴포넌트는 함수형 컴포넌트 사용
+- Props 인터페이스는 명시적으로 정의
+- 조건부 렌더링 시 타입 가드 사용
+- 이벤트 핸들러는 camelCase 사용
+
+### 4. 스타일링 규칙
+- Tailwind CSS v4 사용
+- 커스텀 스타일은 `globals.css`에 정의
+- 컴포넌트별 스타일은 인라인 클래스 사용
+- 반응형 디자인 우선
+- **입력 필드 텍스트 색상**: `text-[#333]` 사용
+
+### 5. 상태 관리 규칙
+- 로컬 상태는 `useState` 사용
+- 복잡한 상태는 `useReducer` 고려
+- **전역 상태는 Zustand 사용** (persist middleware 포함)
+- 상태 업데이트는 불변성 유지
+
+### 6. 인증 시스템 규칙
+- **Google OAuth**: Supabase Auth 사용
+- **Email/Password**: Supabase Auth 사용
+- **Password Reset**: Supabase Auth 사용
+- **상태 지속성**: localStorage를 통한 로그인 상태 유지
+- **라우팅 보호**: ProtectedRoute, AuthRedirect 컴포넌트 사용
+
+### 7. 폼 검증 규칙
+- **비밀번호 조건**: 최소 6자, 대문자, 소문자, 숫자, 특수문자 포함
+- **실시간 검증**: 입력 시 즉시 피드백 제공
+- **시각적 피드백**: 조건 충족 시 녹색, 미충족 시 회색 표시
+- **에러 메시지**: 사용자 친화적인 한국어 메시지 사용
+
+### 8. 에러 처리 규칙
+- **Supabase 에러**: 사용자 친화적인 한국어 메시지로 변환
+- **폼 검증 에러**: 실시간 피드백 제공
+- **네트워크 에러**: 적절한 fallback 처리
+
+## 모듈별 규칙
+
+### Entities (도메인 엔티티)
+- **board**: 보드 관련 타입 및 인터페이스
+- **user**: 사용자 관련 타입 및 인터페이스  
+- **element**: 보드 요소 관련 타입 및 인터페이스
+
+### Features (비즈니스 기능)
+- **auth**: 인증 관련 기능 (Google OAuth, Email/Password, Password Reset)
+  - `EmailLoginForm`: 이메일 로그인 폼
+  - `SignUpForm`: 회원가입 폼 (닉네임 필수, 비밀번호 검증)
+  - `ResetPasswordForm`: 비밀번호 재설정 폼
+  - `LoginForm`: 통합 로그인 폼 (모드 전환)
+- **board**: 보드 관리 기능
+- **content**: 콘텐츠 생성 기능 (포스트잇, 이미지)
+- **collaboration**: 실시간 협업 기능
+
+### Widgets (복합 UI)
+- **header**: 헤더 컴포넌트
+- **sidebar**: 사이드바 컴포넌트
+- **board-canvas**: 보드 캔버스 컴포넌트
+
+### Pages (페이지)
+- **landing**: 랜딩 페이지
+- **dashboard**: 대시보드 페이지 (보호된 라우트)
+- **board**: 보드 페이지 (보호된 라우트)
+- **auth**: 인증 페이지 (로그인/회원가입/비밀번호 재설정)
+- **auth/reset-password**: 비밀번호 재설정 페이지
+
+### Shared (공유 리소스)
+- **ui**: 공유 UI 컴포넌트
+  - `Navigation`: 공통 네비게이션 컴포넌트
+- **lib**: 공유 라이브러리 및 유틸리티
+  - `stores/authStore`: Zustand 인증 스토어 (persist 포함)
+  - `supabase/client`: Supabase 클라이언트
+  - `supabase/server`: Supabase 서버 클라이언트
+  - `providers/AuthProvider`: 인증 프로바이더
+  - `components/ProtectedRoute`: 보호된 라우트 컴포넌트
+  - `components/AuthRedirect`: 인증 리다이렉트 컴포넌트
+- **types**: 공유 타입 정의
+- **constants**: 공유 상수
+- **hoc**: Higher-Order Components
+
+## API 규칙
+
+### Supabase 사용 규칙
+- 클라이언트 사이드: `@/shared/lib/supabase/client`
+- 서버 사이드: `@/shared/lib/supabase/server`
+- 타입 정의: `@/shared/types`
+- API 함수: 각 모듈의 `api/` 폴더에 정의
+
+### 인증 API 규칙
+- **Google OAuth**: `supabase.auth.signInWithOAuth`
+- **Email/Password 로그인**: `supabase.auth.signInWithPassword`
+- **회원가입**: `supabase.auth.signUp`
+- **비밀번호 재설정**: `supabase.auth.resetPasswordForEmail`
+- **로그아웃**: `supabase.auth.signOut`
+
+### 실시간 기능
+- Supabase Realtime 사용
+- 보드 변경사항 실시간 동기화
+- 다중 사용자 동시 편집 지원
+
+## 경로 별칭 규칙
+```typescript
+"@/*": ["./src/*"]
+"@/app/*": ["./src/app/*"]
+"@/pages/*": ["./src/pages/*"]
+"@/widgets/*": ["./src/widgets/*"]
+"@/features/*": ["./src/features/*"]
+"@/entities/*": ["./src/entities/*"]
+"@/shared/*": ["./src/shared/*"]
+```
+
+## 주석 규칙
+- 모든 주석은 영어로 작성
+- 복잡한 비즈니스 로직에 주석 추가
+- API 함수에 JSDoc 스타일 주석 사용
+- TODO 주석은 구체적인 작업 설명 포함
+
+## 성능 최적화 규칙
+- React.memo로 불필요한 리렌더링 방지
+- useCallback과 useMemo 적절히 사용
+- 이미지 최적화 (Next.js Image 컴포넌트)
+- 코드 스플리팅 및 지연 로딩 적용
+
+## 보안 규칙
+- 환경 변수는 `.env.local`에 저장
+- Supabase RLS (Row Level Security) 활성화
+- 사용자 인증 상태 확인
+- 입력 데이터 검증
+- 비밀번호 복잡성 검증
+
+## 테스트 규칙
+- 컴포넌트 단위 테스트 작성
+- API 함수 단위 테스트 작성
+- E2E 테스트 고려 (실시간 협업 기능)
+
+## 배포 규칙
+- Vercel 배포 권장
+- 환경 변수 설정 확인
+- Supabase 프로젝트 연결 확인
+- 빌드 최적화 적용
+
+## 구현된 기능
+
+### 인증 시스템
+- ✅ Google OAuth 로그인
+- ✅ 이메일/비밀번호 로그인
+- ✅ 회원가입 (닉네임 필수, 비밀번호 검증)
+- ✅ 비밀번호 재설정
+- ✅ 로그인 상태 지속성 (localStorage)
+- ✅ 라우팅 보호 (ProtectedRoute, AuthRedirect)
+- ✅ 사용자 친화적 에러 메시지
+
+### UI/UX 개선
+- ✅ 모노톤 디자인 적용
+- ✅ 입력 필드 텍스트 색상 #333 적용
+- ✅ 실시간 비밀번호 검증 및 시각적 피드백
+- ✅ 비밀번호 조건 표시 (최소 6자, 대문자, 소문자, 숫자, 특수문자)
+- ✅ 비밀번호 일치 여부 실시간 확인
+
+### 폴더 구조 개선
+- ✅ FSD 구조 준수
+- ✅ 각 컴포넌트별 독립적 폴더 구조
+- ✅ Shared Lib 폴더 구조 개선
+- ✅ 개별 index.ts 파일로 모듈화
+
+### 상태 관리
+- ✅ Zustand를 사용한 전역 상태 관리
+- ✅ persist middleware를 통한 상태 지속성
+- ✅ 인증 상태 전역 관리 

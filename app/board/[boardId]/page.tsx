@@ -1,11 +1,12 @@
 import { BoardPage } from '@/pages/board';
 
 interface BoardPageRouteProps {
-  params: {
+  params: Promise<{
     boardId: string;
-  };
+  }>;
 }
 
-export default function BoardPageRoute({ params }: BoardPageRouteProps) {
+export default async function BoardPageRoute({ params }: BoardPageRouteProps) {
+  await params; // params를 사용하지 않지만 await는 필요
   return <BoardPage />;
 } 
